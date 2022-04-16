@@ -56,17 +56,17 @@ resource "aws_iam_role_policy_attachment" "policy_attach" {
 data "archive_file" "default" {
   type        = "zip"
   source_dir  = "${path.module}/files/"
-  output_path = "${path.module}/myzip/python.zip"
+  output_path = "${path.module}/myzip/nodejs.zip"
 }
 
 # Create a lambda function
 # In terraform ${path.module} is the current directory.
 
 resource "aws_lambda_function" "lambdafunc" {
-  filename                       = "${path.module}/myzip/python.zip"
+  filename                       = "${path.module}/myzip/nodejs.zip"
   function_name                  = "My_Lambda_function"
   role                           = aws_iam_role.lambda_role.arn
-  handler                        = "index.lambda_handler"
-  runtime                        = "python3.8"
+  handler                        = "index.handler"
+  runtime                        = "nodejs14.x"
   depends_on                     = [aws_iam_role_policy_attachment.policy_attach]
 }
