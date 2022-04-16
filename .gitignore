@@ -37,3 +37,4 @@ terraform.rc
 #nodejs
 node_modules
 .serverless
+*package-lock.json
