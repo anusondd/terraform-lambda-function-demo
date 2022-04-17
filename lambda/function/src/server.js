@@ -9,6 +9,7 @@ const credential = {
     region: 'ap-southeast-1',
 }
 const fs = require('fs');
+const converter = require('json-2-csv');
 const AWS = require('aws-sdk');
 const s3 = new AWS.S3(credential);
 const cloudwatch = new AWS.CloudWatch(credential);
@@ -113,20 +114,29 @@ app.get('/', async (req, res) => {
     try {
         let logs = await getLogGroupStats()
         console.log('logs ',logs);
-        s3.putObject({
-            Bucket: 'myserverlessapp-logs',
-            Key: moment().format('DD-MM-YYYY').toString()+'/IncomingBytes.json',
-            Body: JSON.stringify(logs),
-            ContentType: "application/json"},
-            function (err,data) {
-                if(err){
-                    console.log(JSON.stringify(err))
-                    res.status(500).send(error);
-                }
-                console.log('data ',JSON.stringify(data));
-                res.status(200).send(data);
+
+        converter.json2csv(logs, (err, csv) => {
+            if (err) {
+                throw err;
             }
-          );
+        
+            // print CSV string
+            console.log("csv",csv);
+            s3.putObject({
+                Bucket: 'myserverlessapp-logs',
+                Key: moment().format('DD-MM-YYYY').toString()+'/IncomingBytes.csv',
+                Body: csv,
+                ContentType: "application/csv"},
+                function (err,data) {
+                    if(err){
+                        console.log(JSON.stringify(err))
+                        res.status(500).send(error);
+                    }
+                    console.log('data ',JSON.stringify(data));
+                    res.status(200).send(data);
+                }
+              );
+        });
     } catch (error) {
         console.error(error)
         res.status(500).send(error);
