@@ -38,3 +38,6 @@ terraform.rc
 node_modules
 .serverless
 *package-lock.json
+
+#prometheus
+prometheus_data
